@@ -1,30 +1,8 @@
 import streamlit as st
-import pickle
-import numpy as np
-import pandas as pd
 import numpy as np
 import pandas as pd
 import sklearn
-import json
-from sklearn.model_selection import cross_val_score
-import random
-# from sklearn.metrics import roc_curve
-# from sklearn.metrics import auc
-# from sklearn.svm import SVC
-#import matplotlib.pyplot as plt
 from xgboost import XGBClassifier
-from sklearn.ensemble import RandomForestClassifier
-# from sklearn.preprocessing import PolynomialFeatures
-# from sklearn.linear_model import LogisticRegression
-# from sklearn.ensemble import AdaBoostClassifier
-# from sklearn.ensemble import ExtraTreesClassifier
-# from sklearn.ensemble import GradientBoostingClassifier
-# from sklearn.tree import DecisionTreeClassifier
-# from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.cluster import AgglomerativeClustering
-# from sklearn.naive_bayes import GaussianNB
-# from sklearn.tree import DecisionTreeClassifier
-# import sklearn.model_selection as model_selection
 from imblearn.over_sampling import RandomOverSampler
 from joblib import dump, load
 
@@ -40,8 +18,8 @@ st.title('Machine Learning Application for Predicting Bone Metastasis in TNBC')
 
 # conf
 # st.sidebar.markdown('## Variables')
-# #Age = st.sidebar.selectbox('Age',('<55','>=55'),index=0)
-# Sex = st.sidebar.selectbox('Sex',('Female','Male'),index=0)
+selectbox('Age5','>=55'),index=0)
+# Sex" = st.sidebar.selectbox('Sex',('Female','Male'),index=0)
 # T = st.sidebar.selectbox("T stage",('T1','T2','T3','T4'))
 # HGB = st.sidebar.slider("HGB", 0, 200, value=100, step=1)
 # N = st.sidebar.selectbox("N stage",('N0','N1','N2','N3'))
