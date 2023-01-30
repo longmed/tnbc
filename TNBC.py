@@ -26,6 +26,7 @@ from sklearn.ensemble import RandomForestClassifier
 # from sklearn.tree import DecisionTreeClassifier
 # import sklearn.model_selection as model_selection
 from imblearn.over_sampling import RandomOverSampler
+from joblib import dump, load
 
 #应用主题
 st.set_page_config(
@@ -52,12 +53,22 @@ st.title('Machine Learning Application for Predicting Bone Metastasis in TNBC')
 # Chemotherapy = st.sidebar.selectbox("Chemotherapy",('No','Yes'))
 #Marital_status = st.sidebar.selectbox("Marital status",('Married','Unmarried'))
 col1, col2, col3 = st.columns(3)
-T = col1.selectbox("T stage",('T1','T2','T3','T4'))
+Age = col1.selectbox("Age",('<60','>=60'))
+Race = col2.selectbox("Race",('American Indian/Alaska Native',
+                              'Asian or Pacific Islander',
+                              'Black',
+                              'White'),3)
+Grade = col3.selectbox("Grade",('Grade Ⅰ(Well differentiated)',
+                                'Grade Ⅱ(Moderately differentiated)',
+                                'Grade Ⅲ(Poorly differentiated)',
+                                'Grade Ⅳ(Undifferentiated)'),1)
+Marital_status = col1.selectbox("Marital status",('Unmarried','Married'))
+T = col2.selectbox("T stage",('T1','T2','T3','T4'))
 #NSE = col2.number_input("NSE (ng/mL)",step=0.01,format="%.2f",value=1.45)
-N = col2.selectbox("N stage",('N0','N1','N2', 'N3'))
-Brain_mets = col3.selectbox("Brain metastasis",('No','Yes'))
-Lung_mets = col1.selectbox("Lung metastasis",('No','Yes'))
-Liver_mets = col2.selectbox("Liver metastasis",('No','Yes'))
+N = col3.selectbox("N stage",('N0','N1','N2', 'N3'))
+Brain_mets = col1.selectbox("Brain metastasis",('No','Yes'))
+Lung_mets = col2.selectbox("Lung metastasis",('No','Yes'))
+Liver_mets = col3.selectbox("Liver metastasis",('No','Yes'))
 
 # RoPE = col1.number_input('RoPE',step=1,value=4)
 # SD = col2.selectbox("Stroke distribution",('Anterior circulation','Posterior circulation','Anterior/posterior circulation'))
@@ -74,7 +85,17 @@ Liver_mets = col2.selectbox("Liver metastasis",('No','Yes'))
 # Fibrinogen = col3.number_input('Fibrinogen',value=3.50)
 
 # str_to_
-map = {'Left':0,'Right':1,'Bilateral':2,
+map = {'<60':0,'>=60':1,
+       'American Indian/Alaska Native':0,
+       'Asian or Pacific Islander':1,
+       'Black':2,
+       'White':3,
+       'Grade Ⅰ(Well differentiated)':0,
+       'Grade Ⅱ(Moderately differentiated)':1,
+       'Grade Ⅲ(Poorly differentiated)':2,
+       'Grade Ⅳ(Undifferentiated)':3,
+       'Unmarried':0,'Married':1,
+       'Left':0,'Right':1,'Bilateral':2,
        'T1':0,'T2':1,'T3':2,'T4':3,
        'N0':0,'N1':1,'N2':2,'N3':3,
        'No':0,'Yes':1}
@@ -84,38 +105,41 @@ N =map[N]
 Brain_mets = map[Brain_mets]
 Lung_mets =map[Lung_mets]
 Liver_mets = map[Liver_mets]
+Age = map[Age]
+Race = map[Race]
+Grade = map[Grade]
+Marital_status = map[Marital_status]
+
 # N =map[N]
 # Laterality =map[Laterality]
 # Histbehav =map[Histbehav]
 # Chemotherapy =map[Chemotherapy]
 
 # 数据读取，特征标注
-thyroid_train = pd.read_csv('train.csv', low_memory=False)
+# thyroid_train = pd.read_csv('train.csv', low_memory=False)
 # thyroid_train['fracture'] = thyroid_train['fracture'].apply(lambda x : +1 if x==1 else 0)
 #thyroid_test = pd.read_csv('test.csv', low_memory=False)
 #thyroid_test['BM'] = thyroid_test['BM'].apply(lambda x : +1 if x==1 else 0)
-features=['T','N','Brain_mets', 'Liver_mets', 'Lung_mets']
+features = ['Age',  'Race', 'Grade','Marital_status','T','N','Brain_mets', 'Liver_mets', 'Lung_mets',]
 target='BM'
 
-#处理数据不平衡
-ros = RandomOverSampler(random_state=12, sampling_strategy='auto')
-X_ros, y_ros = ros.fit_resample(thyroid_train[features], thyroid_train[target])
+# #处理数据不平衡
+# ros = RandomOverSampler(random_state=12, sampling_strategy='auto')
+# X_ros, y_ros = ros.fit_resample(thyroid_train[features], thyroid_train[target])
 
 #train and predict
 # RF = sklearn.ensemble.RandomForestClassifier(n_estimators=32,criterion='entropy',max_features='log2',max_depth=5,random_state=12)
 # RF.fit(X_ros, y_ros)
-XGB = XGBClassifier(random_state=32,max_depth=5,n_estimators=12)
-XGB.fit(X_ros, y_ros)
+# XGB = XGBClassifier(random_state=32,max_depth=5,n_estimators=12)
+# XGB.fit(X_ros, y_ros)
 #读之前存储的模型
-
-#with open('RF.pickle', 'rb') as f:
-#    RF = pickle.load(f)
+XGB=load( 'XGB.pkl')
 
 
 sp = 0.5
 #figure
-is_t = (XGB.predict_proba(np.array([[ T,N,Brain_mets, Liver_mets, Lung_mets]]))[0][1])> sp
-prob = (XGB.predict_proba(np.array([[T,N,Brain_mets, Liver_mets, Lung_mets]]))[0][1])*1000//1/10
+is_t = (XGB.predict_proba(np.array([[Age,  Race, Grade,Marital_status,T,N,Brain_mets, Liver_mets, Lung_mets]]))[0][1])> sp
+prob = (XGB.predict_proba(np.array([[Age,  Race, Grade,Marital_status,T,N,Brain_mets, Liver_mets, Lung_mets]]))[0][1])*1000//1/10
 
 #st.write('is_t:',is_t,'prob is ',prob)
 #st.markdown('## is_t:'+' '+str(is_t)+' prob is:'+' '+str(prob))
